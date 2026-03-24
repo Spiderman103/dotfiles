@@ -1,0 +1,58 @@
+[1m[31m[ERROR]:[33m Unknown keyword: [1m[31munfocuscolor
+[1;31m╰─[1;33m[Index][0m [1;36m/home/sahil/.config/mango/config.conf[0m:[1;35m124[0m
+   [1;36m╰─[0;33munfocuscolor=0x222222ff
+[0m
+
+[1m[31m[ERROR]:[33m Unknown window rule option:[1m[31m ispin
+[1;31m╰─[1;33m[Index][0m [1;36m/home/sahil/.config/mango/config.conf[0m:[1;35m157[0m
+   [1;36m╰─[0;33mwindowrule=ispin:1,title:Picture-in-Picture
+[0m
+
+[1m[31m[ERROR]:[33m Unknown dispatch in bind: [1m[31mtogglefocus
+[1;31m╰─[1;33m[Index][0m [1;36m/home/sahil/.config/mango/config.conf[0m:[1;35m256[0m
+   [1;36m╰─[0;33mbind=SUPER,space,togglefocus,
+[0m
+
+sh: line 1: new-wallpaper: command not found
+sh: line 1: nm-applet: command not found
+sh: line 1: /usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1: No such file or directory
+sh: line 1: udiskie: command not found
+sh: line 1: dex: command not found
+Warning: The system is now being configured to read the RTC time in the local time zone
+         This mode cannot be fully supported. It will create various problems
+         with time zone changes and daylight saving time adjustments. The RTC
+         time is never updated, it relies on external facilities to maintain it.
+         If at all possible, use RTC in UTC
+Failed to spawn cliphist: No such file or directoryFailed to spawn cliphist: No such file or directory2026/03/08 14:31:40 [ERROR] - dbus: failed to acquire service name: File exists
+'impl->enter_count > 0' failed at ../pipewire/spa/plugins/support/loop.c:619 loop_leave()
+CRITICAL: [dbus_cb_name_lost:1423] Cannot acquire 'org.freedesktop.Notifications': Name is acquired by 'dunst' with PID '1734'.
+Failed to set local RTC: Access denied as the requested operation requires interactive authentication. However, interactive authentication has not been enabled by the calling program.
+The XKEYBOARD keymap compiler (xkbcomp) reports:
+> Warning:          Multiple symbols for level 1/group 1 on key <FK23>
+>                   Using F23, ignoring XF86TouchpadOff
+> Warning:          Symbol map for key <FK23> redefined
+>                   Using last definition for conflicting fields
+> Warning:          Symbol map for key <FK24> redefined
+>                   Using last definition for conflicting fields
+Errors from xkbcomp are not fatal to the X server
+The XKEYBOARD keymap compiler (xkbcomp) reports:
+> Warning:          Unsupported maximum keycode 709, clipping.
+>                   X11 cannot support keycodes above 255.
+> Warning:          Virtual modifier Hyper multiply defined
+>                   Using 0, ignoring 0
+> Warning:          Virtual modifier ScrollLock multiply defined
+>                   Using 0, ignoring 0
+Errors from xkbcomp are not fatal to the X server
+blueman-applet 14.31.40 WARNING  PluginManager:93 load_plugin: Failed to start plugin GameControllerWakelock: Only X11 platform is supported
+blueman-applet 14.31.40 WARNING  PluginManager:153 __load_plugin: Not loading PPPSupport because its conflict has higher priority
+blueman-applet 14.31.40 WARNING  PluginManager:153 __load_plugin: Not loading DhcpClient because its conflict has higher priority
+The XKEYBOARD keymap compiler (xkbcomp) reports:
+> Warning:          Unsupported maximum keycode 709, clipping.
+>                   X11 cannot support keycodes above 255.
+> Warning:          Virtual modifier Hyper multiply defined
+>                   Using 0, ignoring 0
+> Warning:          Virtual modifier ScrollLock multiply defined
+>                   Using 0, ignoring 0
+Errors from xkbcomp are not fatal to the X server
+wl_display_dispatch: Broken pipe
+wl_display_dispatch: Broken pipe

@@ -1,0 +1,277 @@
+# Sway Configuration
+# Converted from your i3 config
+# ~/.config/sway/config
+
+
+# Add at the top
+output * max_render_time 1
+
+
+############################
+# Basics
+############################
+set $mod Mod4
+set $terminal kitty
+set $menu rofi -show drun
+font pango:monospace 10
+
+############################
+# Output Configuration (Monitors)
+############################
+# Primary laptop display
+output eDP-1 {
+    mode 2560x1600@240Hz
+    position 0,0
+    scale 1
+}
+
+# External monitor (verify with: swaymsg -t get_outputs)
+# In Sway, HDMI-1-0 becomes HDMI-A-1
+output HDMI-A-1 {
+    mode 1920x1080@60Hz
+    position 2560,0
+    scale 1
+}
+
+# Wallpaper (for all outputs)
+# Use your new-wallpaper script
+exec --no-startup-id new-wallpaper
+
+# Or set a default wallpaper:
+# output * bg ~/wallpapers/default.jpg fill   <<<--- THIS IS LINE 31 (THE ERROR)
+
+
+############################
+# Input Configuration
+############################
+# Keyboard
+input type:keyboard {
+    repeat_delay 200
+    repeat_rate 50
+    xkb_numlock enabled
+}
+
+# Touchpad (find your device with: swaymsg -t get_inputs)
+input "1267:12587:ELAN050B:01_04F3:312B_Touchpad" {
+    natural_scroll enabled
+    tap enabled
+    dwt enabled
+    accel_profile adaptive
+    pointer_accel 0.0
+}
+
+############################
+# Idle & Lock Configuration
+############################
+exec swayidle -w \
+    timeout 300 'swaylock -f' \
+    timeout 600 'swaymsg "output * dpms off"' \
+    resume 'swaymsg "output * dpms on"' \
+    before-sleep 'swaylock -f'
+
+############################
+# Gaps & Borders
+############################
+gaps inner 20
+gaps outer 10
+smart_gaps on
+smart_borders on
+default_border pixel 7
+hide_edge_borders none
+
+
+# Border colors
+client.focused          #0e0891 #6f00ff #ffffff #2e9ef4 #6f00ff
+client.focused_inactive #333333 #5f676a #ffffff #484e50 #5f676a
+client.unfocused        #333333 #222222 #888888 #292d2e #222222
+client.urgent           #2f343a #900000 #ffffff #900000 #900000
+client.placeholder      #000000 #0c0c0c #ffffff #000000 #0c0c0c
+client.background       #ffffff
+
+############################
+# Floating rules
+############################
+floating_modifier $mod normal
+
+for_window [app_id="rofi"] floating enable
+for_window [app_id="zoom"] floating enable
+for_window [app_id="pavucontrol"] floating enable
+for_window [title="Picture-in-Picture"] floating enable, sticky enable
+
+############################
+# Workspaces
+############################
+set $ws1 "1"
+set $ws2 "2"
+set $ws3 "3"
+set $ws4 "4"
+set $ws5 "5"
+set $ws6 "6"
+set $ws7 "7"
+set $ws8 "8"
+set $ws9 "9"
+
+# Switch to workspace
+bindsym $mod+1 workspace $ws1
+bindsym $mod+2 workspace $ws2
+bindsym $mod+3 workspace $ws3
+bindsym $mod+4 workspace $ws4
+bindsym $mod+5 workspace $ws5
+bindsym $mod+6 workspace $ws6
+bindsym $mod+7 workspace $ws7
+bindsym $mod+8 workspace $ws8
+bindsym $mod+9 workspace $ws9
+
+# Move focused window to workspace
+bindsym $mod+Shift+1 move container to workspace $ws1
+bindsym $mod+Shift+2 move container to workspace $ws2
+bindsym $mod+Shift+3 move container to workspace $ws3
+bindsym $mod+Shift+4 move container to workspace $ws4
+bindsym $mod+Shift+5 move container to workspace $ws5
+bindsym $mod+Shift+6 move container to workspace $ws6
+bindsym $mod+Shift+7 move container to workspace $ws7
+bindsym $mod+Shift+8 move container to workspace $ws8
+bindsym $mod+Shift+9 move container to workspace $ws9
+
+############################
+# Application keybindings
+############################
+bindsym $mod+q exec $terminal
+bindsym $mod+Shift+q exec xterm
+bindsym $mod+c kill
+bindsym $mod+d exec $menu
+bindsym $mod+Shift+c reload
+bindsym $mod+l exec swaylock
+bindsym $mod+g exec new-wallpaper
+bindsym $mod+b exec ~/dotfiles/bruh.sh --dunst
+bindsym $mod+Shift+s exec grim -g "$(slurp)" - | wl-copy && wl-paste > ~/Pictures/Screenshots/screenshot-$(date +%Y%m%d-%H%M%S).png
+bindsym $mod+Shift+b exec killall -SIGUSR1 waybar
+
+############################
+# Focus movement
+############################
+bindsym $mod+Left focus left
+bindsym $mod+Down focus down
+bindsym $mod+Up focus up
+bindsym $mod+Right focus right
+
+############################
+# Move windows
+############################
+bindsym $mod+Shift+Left move left
+bindsym $mod+Shift+Down move down
+bindsym $mod+Shift+Up move up
+bindsym $mod+Shift+Right move right
+
+############################
+# Layout management
+############################
+bindsym $mod+h split h
+bindsym $mod+v split v
+bindsym $mod+f fullscreen toggle
+bindsym $mod+s layout stacking
+bindsym $mod+w layout tabbed
+bindsym $mod+e exec --no-startup-id ~/.local/bin/pcmanfm-dark.sh
+bindsym $mod+space focus mode_toggle
+bindsym $mod+Shift+space floating toggle
+
+# Toggle night mode with $mod+n
+bindsym $mod+n exec --no-startup-id ~/.config/sway/scripts/toggle-night-mode.sh
+
+bindsym $mod+a focus parent
+
+############################
+# Resize mode
+############################
+mode "resize" {
+    bindsym Left resize shrink width 10 px or 10 ppt
+    bindsym Down resize grow height 10 px or 10 ppt
+    bindsym Up resize shrink height 10 px or 10 ppt
+    bindsym Right resize grow width 10 px or 10 ppt
+    bindsym Return mode "default"
+    bindsym Escape mode "default"
+}
+bindsym $mod+r mode "resize"
+
+############################
+# Media & hardware keys
+############################
+
+#bindsym XF86AudioRaiseVolume exec volumectl up
+#bindsym XF86AudioLowerVolume exec volumectl down
+#bindsym XF86AudioMute exec volumectl toggle-mute
+#bindsym XF86AudioMicMute exec volumectl -m toggle-mute
+#bindsym XF86Launch3 exec playerctl play-pause
+#bindsym XF86AudioPlay exec playerctl play-pause
+#bindsym XF86MonBrightnessUp exec lightctl up
+#bindsym XF86MonBrightnessDown exec lightctl down
+
+# Volume keys - FULL PATHS
+bindsym XF86AudioRaiseVolume exec ~/.local/bin/volumectl up
+bindsym XF86AudioLowerVolume exec ~/.local/bin/volumectl down
+bindsym XF86AudioMute exec ~/.local/bin/volumectl toggle-mute
+bindsym XF86AudioMicMute exec ~/.local/bin/volumectl -m toggle-mute
+bindsym XF86Launch3 exec playerctl play-pause
+bindsym XF86AudioPlay exec playerctl play-pause
+
+# Brightness keys - FULL PATHS
+bindsym XF86MonBrightnessUp exec ~/.local/bin/lightctl up
+bindsym XF86MonBrightnessDown exec ~/.local/bin/lightctl down
+
+
+############################
+# Startup Applications
+############################
+
+# Notifications
+exec dunst
+
+# Network manager
+exec nm-applet --indicator
+
+# Bluetooth
+exec blueman-applet
+
+# Polkit
+exec /usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1
+
+# USB automount
+exec udiskie
+
+# Hide cursor when idle
+exec unclutter
+
+# Clipboard manager
+exec wl-paste --type text --watch cliphist store &
+exec wl-paste --type image --watch cliphist store &
+
+# Auto-tiling (optional - Sway has good tiling already)
+# exec autotiling
+
+# Time sync
+exec timedatectl set-local-rtc 1 --adjust-system-clock
+
+# Autostart desktop files
+exec dex --autostart --environment sway
+
+############################
+# Sway-specific Settings
+############################
+# Mouse follows focus
+focus_follows_mouse yes
+
+# Disable laptop screen when lid is closed and external monitor connected
+bindswitch --reload --locked lid:on output eDP-1 disable
+bindswitch --reload --locked lid:off output eDP-1 enable
+
+# Screenshot area to clipboard
+bindsym Print exec grim -g "$(slurp)" - | wl-copy
+
+############################
+# Include additional configs
+############################
+# You can split your config into multiple files
+# include ~/.config/sway/config.d/*
+
+xwayland enable
+exec dunst

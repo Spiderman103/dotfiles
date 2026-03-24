@@ -1,0 +1,129 @@
+/* -------------------------- */
+/* Rofi theme (standalone)   */
+/* -------------------------- */
+
+/* Dark blue theme */
+* {
+    background-color: #25006a;
+    foreground-color: #ffffff;
+    border-color: #ffffff;
+    selected-normal-background: #25006a;
+    selected-normal-foreground: #ffffff;
+}
+
+/* Basic configuration */
+configuration {
+    show-icons: false;
+    display-drun: "";
+    drun-display-format: "{name}";
+    disable-history: false;
+    fullscreen: false;
+    hide-scrollbar: true;
+    sidebar-mode: false;
+}
+
+/* Window styling */
+window {
+    border: 0;
+    padding: 5px;
+    width: 30%;
+    height: 40%;
+    background-color: @background-color;
+}
+
+/* Inputbar and prompt styling */
+inputbar {
+    border: 0;
+    padding: 5px;
+    background-color: @background-color;
+    text-color: @foreground-color;
+}
+
+prompt {
+    padding: 5px 5px 0px 5px;
+    background-color: @background-color;
+    text-color: @foreground-color;
+}
+
+entry {
+    padding: 5px;
+    background-color: @background-color;
+    text-color: @foreground-color;
+}
+
+/* Listview (results) styling */
+listview {
+    lines: 8;
+    columns: 1;
+    fixed-height: 0;
+    border: 0;
+    spacing: 0;
+    scrollbar: false;
+    padding: 5px;
+    background-color: @background-color;
+}
+
+/* Elements - no boxes by default */
+element {
+    border: 0;
+    border-radius: 0;
+    padding: 5px;
+    background-color: @background-color;
+    text-color: @foreground-color;
+}
+
+element-icon {
+    background-color: @background-color;
+    border: 0;
+}
+
+element-text {
+    background-color: @background-color;
+    text-color: @foreground-color;
+    highlight: none;
+    border: 0;
+}
+
+/* White box on hover/selection */
+element selected {
+    border: 1px;
+    border-color: #ffffff;
+    background-color: @background-color;
+    text-color: @foreground-color;
+}
+
+element.normal.normal {
+    background-color: @background-color;
+    text-color: @foreground-color;
+    border: 0;
+}
+
+element.alternate.normal {
+    background-color: @background-color;
+    text-color: @foreground-color;
+    border: 0;
+}
+
+/* Rofi calc styles */
+textbox-prompt-colon {
+    expand: false;
+    str: ":";
+    margin: 0px 0.3em 0em 0em;
+    background-color: @background-color;
+    text-color: @foreground-color;
+}
+
+num-filtered-rows, num-rows {
+    text-color: @foreground-color;
+}
+
+textbox-num-sep {
+    expand: false;
+    str: "/";
+}
+
+textbox {
+    padding: 8px;
+    background-color: @background-color;
+    text-color: @foreground-color;
+}
