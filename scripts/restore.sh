@@ -4,8 +4,8 @@
 
 set -e  # stop on any error
 
-# Dynamically get the directory this script is located in
-DOTFILES="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# Dynamically get the parent directory of where this script is located
+DOTFILES="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
 echo "==> Updating system and installing base-devel..."
 sudo pacman -Syu --noconfirm
