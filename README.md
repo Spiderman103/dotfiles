@@ -1,5 +1,5 @@
 # Nargin's Dotfiles
-> Arch Linux setup — UCF / HackUCF | Sway WM
+> Arch Linux setup | Mango WM
 
 Zero to working setup in one script. If your machine dies or you switch to a new one, this repo gets you back up and running fast.
 
