@@ -2,116 +2,211 @@
 
 # ==============================================================================
 # ARCH LINUX DOTFILES RESTORE SCRIPT
+# Nargin's Setup - UCF / HackUCF
 # ==============================================================================
-# This script is designed to be run on a fresh Arch Linux installation.
-# It will update your system, install your packages, and link your configs.
+# Run this on a fresh Arch install to rebuild your entire environment.
+# Usage: bash restore.sh
+# ==============================================================================
 
-# Stop the script completely if any critical command fails
-set -e 
+set -euo pipefail  # e=exit on error, u=error on undefined vars, o=pipefail
 
-echo "======================================================="
-echo " Phase 1: Setting up Directories"
-echo "======================================================="
+# Colors for output
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+RED='\033[0;31m'
+NC='\033[0m' # No Color
 
-# Find out exactly where this script is saved on your computer.
-# We look at the folder the script is in (scripts/), and go up one level (..)
-# to find the main dotfiles repository folder.
-DOTFILES_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+ok()   { echo -e "${GREEN}[OK]${NC} $1"; }
+warn() { echo -e "${YELLOW}[WARN]${NC} $1"; }
+fail() { echo -e "${RED}[FAIL]${NC} $1"; exit 1; }
 
-echo "Found dotfiles repository at: $DOTFILES_DIR"
-
-echo "======================================================="
-echo " Phase 2: System Preparation & Multilib"
-echo "======================================================="
-
-# In your last error, 'lib32-mesa' failed because the 32-bit repo was disabled.
-# This command safely enables the [multilib] repository in pacman.conf.
-echo "Enabling multilib repository for 32-bit packages..."
-sudo sed -i "/\[multilib\]/,/Include/"'s/^#//' /etc/pacman.conf
-
-# Update the system with the new repository enabled
-echo "Updating system databases..."
-sudo pacman -Syu --noconfirm
-
-# Install the essential tools needed to download and build packages
-echo "Installing git and base-devel..."
-sudo pacman -S --needed --noconfirm git base-devel
-
-echo "======================================================="
-echo " Phase 3: Installing the AUR Helper (Paru)"
-echo "======================================================="
-
-# Check if paru is already installed. If it isn't, download and build it.
-if ! command -v paru &> /dev/null; then
-    echo "Paru not found. Building paru from the AUR..."
-    # Remove the temp folder if it exists from a previous failed run
-    rm -rf /tmp/paru  
-    git clone https://aur.archlinux.org/paru.git /tmp/paru
-    cd /tmp/paru
-    makepkg -si --noconfirm
-    # Go back to the dotfiles directory when finished
-    cd "$DOTFILES_DIR"
-else
-    echo "Paru is already installed. Moving on!"
+# ==============================================================================
+# GUARD: Do NOT run as root
+# ==============================================================================
+if [ "$EUID" -eq 0 ]; then
+    fail "Do not run this script as root. Run as your normal user with sudo access."
 fi
 
+# ==============================================================================
+# Phase 1: Locate Dotfiles Directory
+# ==============================================================================
+echo ""
+echo "======================================================="
+echo " Phase 1: Locating Dotfiles Directory"
+echo "======================================================="
+
+# Script lives in dotfiles/scripts/ — go up one level to get dotfiles root
+DOTFILES_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+ok "Dotfiles repo found at: $DOTFILES_DIR"
+
+# Pull latest from git so configs are up to date
+echo "Pulling latest dotfiles from GitHub..."
+git -C "$DOTFILES_DIR" pull --ff-only || warn "Git pull failed — continuing with local files."
+
+# ==============================================================================
+# Phase 2: System Update + Multilib
+# ==============================================================================
+echo ""
+echo "======================================================="
+echo " Phase 2: System Prep + Multilib"
+echo "======================================================="
+
+echo "Enabling multilib for 32-bit packages (needed for Steam, Wine, etc.)..."
+sudo sed -i "/\[multilib\]/,/Include/"'s/^#//' /etc/pacman.conf
+ok "Multilib enabled."
+
+echo "Running full system update..."
+sudo pacman -Syu --noconfirm
+ok "System up to date."
+
+echo "Installing git + base-devel (required to build AUR packages)..."
+sudo pacman -S --needed --noconfirm git base-devel
+ok "Base tools ready."
+
+# ==============================================================================
+# Phase 3: AUR Helper (Paru)
+# ==============================================================================
+echo ""
+echo "======================================================="
+echo " Phase 3: AUR Helper — Paru"
+echo "======================================================="
+
+if command -v paru &> /dev/null; then
+    ok "Paru already installed. Skipping."
+else
+    echo "Installing paru from AUR..."
+    rm -rf /tmp/paru-build
+    git clone https://aur.archlinux.org/paru.git /tmp/paru-build
+    # makepkg CANNOT be run from /tmp on some systems due to noexec — build in home
+    cp -r /tmp/paru-build ~/paru-build
+    cd ~/paru-build
+    makepkg -si --noconfirm
+    cd "$DOTFILES_DIR"
+    rm -rf ~/paru-build
+    ok "Paru installed."
+fi
+
+# ==============================================================================
+# Phase 4: Package Installation
+# ==============================================================================
+echo ""
 echo "======================================================="
 echo " Phase 4: Installing Packages"
 echo "======================================================="
-# NOTE: We temporarily disable 'set -e' here. This means if ONE package in 
-# your text file doesn't exist anymore, the script will skip it and keep 
-# going, instead of crashing the entire script.
+
+# Disable exit-on-error here — a missing package shouldn't kill the whole script
 set +e
 
-echo "Installing official Arch packages from pkglist-explicit.txt..."
-# Read the text file and pass the list of names directly to pacman
-sudo pacman -S --needed --noconfirm - < "$DOTFILES_DIR/pkglist-explicit.txt"
+EXPLICIT_LIST="$DOTFILES_DIR/pkglist-explicit.txt"
+AUR_LIST="$DOTFILES_DIR/pkglist-aur.txt"
 
-echo "Installing AUR packages from pkglist-aur.txt..."
-# Read the text file and pass the list of names directly to paru
-paru -S --needed --noconfirm - < "$DOTFILES_DIR/pkglist-aur.txt"
+if [ -f "$EXPLICIT_LIST" ]; then
+    echo "Installing official packages from pkglist-explicit.txt..."
+    sudo pacman -S --needed --noconfirm - < "$EXPLICIT_LIST"
+    ok "Official packages done."
+else
+    warn "pkglist-explicit.txt not found — skipping official packages."
+fi
 
-# Re-enable strict error checking for the rest of the script
+if [ -f "$AUR_LIST" ]; then
+    echo "Installing AUR packages from pkglist-aur.txt..."
+    paru -S --needed --noconfirm - < "$AUR_LIST"
+    ok "AUR packages done."
+else
+    warn "pkglist-aur.txt not found — skipping AUR packages."
+fi
+
+# Re-enable strict error checking
 set -e
 
+# ==============================================================================
+# Phase 5: Symlink Configs
+# ==============================================================================
+echo ""
 echo "======================================================="
-echo " Phase 5: Restoring Configuration Files"
+echo " Phase 5: Symlinking Config Files"
 echo "======================================================="
 
-echo "Creating necessary local folders..."
 mkdir -p ~/.config ~/.local/bin
 
-echo "Symlinking folders into ~/.config/..."
-# Look at every item inside your repo's 'config' folder
-for item in "$DOTFILES_DIR/config/"*; do
-    # Make sure the item actually exists (prevents errors if the folder is empty)
-    if [ -e "$item" ]; then
-        # Create a symbolic link from the repo to your actual ~/.config folder
-        ln -sfn "$item" ~/.config/$(basename "$item")
-        echo " -> Linked $(basename "$item")"
+# Safe symlink function — replaces existing files/links without crashing
+safe_link() {
+    local src="$1"
+    local dst="$2"
+    # If it exists but is NOT a symlink (real file), back it up
+    if [ -e "$dst" ] && [ ! -L "$dst" ]; then
+        warn "Backing up existing file: $dst -> $dst.bak"
+        mv "$dst" "$dst.bak"
+    fi
+    ln -sfn "$src" "$dst"
+    ok "Linked: $(basename "$dst")"
+}
+
+# ~/.config/* symlinks
+if [ -d "$DOTFILES_DIR/config" ]; then
+    echo "Symlinking ~/.config entries..."
+    for item in "$DOTFILES_DIR/config/"*; do
+        [ -e "$item" ] && safe_link "$item" "$HOME/.config/$(basename "$item")"
+    done
+else
+    warn "No config/ folder found in dotfiles — skipping."
+fi
+
+# ~/.local/* symlinks (bin, share, etc.)
+if [ -d "$DOTFILES_DIR/local" ]; then
+    echo "Symlinking ~/.local entries..."
+    for item in "$DOTFILES_DIR/local/"*; do
+        [ -e "$item" ] && safe_link "$item" "$HOME/.local/$(basename "$item")"
+    done
+else
+    warn "No local/ folder found in dotfiles — skipping."
+fi
+
+# Make local/bin scripts executable
+if [ -d "$HOME/.local/bin" ]; then
+    chmod +x "$HOME/.local/bin/"* 2>/dev/null || true
+    ok "Local bin scripts marked executable."
+fi
+
+# Shell config symlinks
+[ -f "$DOTFILES_DIR/.bashrc" ] && safe_link "$DOTFILES_DIR/.bashrc" "$HOME/.bashrc"
+[ -f "$DOTFILES_DIR/.zshrc"  ] && safe_link "$DOTFILES_DIR/.zshrc"  "$HOME/.zshrc"
+[ -f "$DOTFILES_DIR/.bash_profile" ] && safe_link "$DOTFILES_DIR/.bash_profile" "$HOME/.bash_profile"
+
+# ==============================================================================
+# Phase 6: Enable System Services
+# ==============================================================================
+echo ""
+echo "======================================================="
+echo " Phase 6: Enabling System Services"
+echo "======================================================="
+
+# Add or remove services from this list based on what you actually use
+SERVICES=(
+    "NetworkManager"
+    "bluetooth"
+    "sddm"
+)
+
+for svc in "${SERVICES[@]}"; do
+    if systemctl list-unit-files | grep -q "^${svc}.service"; then
+        sudo systemctl enable --now "$svc" && ok "Enabled: $svc" || warn "Failed to enable: $svc"
+    else
+        warn "Service not found (maybe not installed yet): $svc"
     fi
 done
 
-echo "Symlinking scripts into ~/.local/bin/..."
-for item in "$DOTFILES_DIR/local/"*; do
-    if [ -e "$item" ]; then
-        ln -sfn "$item" ~/.local/$(basename "$item")
-        echo " -> Linked $(basename "$item")"
-    fi
-done
-
-echo "Making sure local scripts are executable..."
-chmod +x "$DOTFILES_DIR/local/bin/"* || true
-
-echo "Symlinking bash shell configuration..."
-ln -sf "$DOTFILES_DIR/.bashrc" ~/.bashrc
-
+# ==============================================================================
+# Done
+# ==============================================================================
+echo ""
 echo "======================================================="
-echo " Phase 6: Wrapping Up"
+echo " ALL DONE — Setup Complete"
 echo "======================================================="
-
-echo "Install script has finished!"
-echo "Please remember to manually enable your services, for example:"
-echo "  sudo systemctl enable --now NetworkManager"
-echo "  sudo systemctl enable --now bluetooth"
-echo "  sudo systemctl enable --now sddm"
+echo ""
+echo "Next steps:"
+echo "  1. Reboot your machine: sudo reboot"
+echo "  2. Log back in and verify your WM/DE loaded correctly"
+echo "  3. Check any services that warned above"
+echo ""
+ok "Restore complete. Welcome back."
