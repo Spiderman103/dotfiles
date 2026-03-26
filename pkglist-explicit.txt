@@ -37,16 +37,12 @@ libqalculate
 linux
 linux-firmware
 man-db
-mangowm
 materia-gtk-theme
 nano
-nerd-fonts-sf-mono
 networkmanager
 nm-connection-editor
 npm
 openconnect
-paru
-paru-debug
 pcmanfm
 pipewire
 pipewire-alsa
@@ -64,7 +60,6 @@ rustup
 sl
 slurp
 sof-firmware
-spotify
 starship
 sway
 swaybg
@@ -80,13 +75,9 @@ unzip
 valgrind
 virtualbox
 virtualbox-host-modules-arch
-visual-studio-code-bin
 vulkan-intel
 webkit2gtk
 wget
-whitesur-cursor-theme-git
-whitesur-gtk-theme
-whitesur-icon-theme
 wireplumber
 wl-clip-persist
 wl-clipboard
@@ -95,5 +86,4 @@ wofi
 xdg-desktop-portal-wlr
 xorg-xwayland
 zathura
-zen-browser-bin
 zram-generator
