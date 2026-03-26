@@ -98,7 +98,6 @@ echo "======================================================="
 set +e
 
 EXPLICIT_LIST="$DOTFILES_DIR/pkglist-explicit.txt"
-AUR_LIST="$DOTFILES_DIR/pkglist-aur.txt"
 
 if [ -f "$EXPLICIT_LIST" ]; then
     echo "Installing official packages from pkglist-explicit.txt..."
@@ -106,14 +105,6 @@ if [ -f "$EXPLICIT_LIST" ]; then
     ok "Official packages done."
 else
     warn "pkglist-explicit.txt not found — skipping official packages."
-fi
-
-if [ -f "$AUR_LIST" ]; then
-    echo "Installing AUR packages from pkglist-aur.txt..."
-    paru -S --needed --noconfirm - < "$AUR_LIST"
-    ok "AUR packages done."
-else
-    warn "pkglist-aur.txt not found — skipping AUR packages."
 fi
 
 # Re-enable strict error checking
